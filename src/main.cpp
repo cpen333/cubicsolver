@@ -11,6 +11,7 @@ int solve_cubic(double d, double c, double b, double a, double out[]) {
     std::cout << "hello" << std::endl;
   }
 
+  return 0;
 }
 
 int main() {
