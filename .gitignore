@@ -1,2 +1,12 @@
 /bin
 
+# CLion project
+.idea
+
+# Visual studio project
+*.vcproj*
+*.sln
+
+# CMake project
+CMake*
+cmake*
