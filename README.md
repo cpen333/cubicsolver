@@ -1,5 +1,7 @@
 # Cubic Root Solver
 
+This is part of the CPEN 333 lecture on using Git.
+
 The goal of this challenge is to create a solver for finding all
 the unique roots of a cubic polynomial.
 
@@ -21,7 +23,7 @@ the unique roots of a cubic polynomial.
                     double right, double &out)
  ```
 
-There are several approaches for solving for roots of a cubic polynomal.
+There are several approaches for solving for roots of a cubic polynomial.
 We will describe one of them here.
 
 If we are able to partition the space into three regions,

@@ -173,7 +173,7 @@ int main() {
 
   int nroots = solve_cubic(d, c, b, a, roots);
   std::cout << std::endl << a << "x^3 + " << b << "x^2 + " 
-    << c << "x + " << d << " has " << nroots << " roots:" << std::endl;
+    << c << "x + " << d << " has " << nroots << " roots:"  ;
   for (int i=0; i<nroots; ++i) {
     std::cout << "  " << roots[i] << std::endl;
   }
