@@ -6,11 +6,10 @@
 //   populates out[] with the solution
 //   returns # roots found
 int solve_cubic(double d, double c, double b, double a, double out[]) {
-
-   // YOUR CODE HERE //
-   // See README.md for hints //
-   
-   // Added some changes.
+  
+  for(int i=0; i<10; ++i) {
+    std::cout << "hello" << std::endl;
+  }
 
 }
 
