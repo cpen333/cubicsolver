@@ -2,60 +2,157 @@
 
 #include <iostream>
 
-// Solves for all the roots of f(x) = a*x^3 + b*x^2 + c*x + d
+// Solves for all unique roots of f(x) = a*x^3 + b*x^2 + c*x + d
 //   populates out[] with the solution
 //   returns # roots found
 int solve_cubic(double d, double c, double b, double a, double out[]) {
 
-  // YOUR CODE HERE
+  // check if quadratic
+  if (a == 0) {
+    return rootsolver::solve_quadratic(d, c, b, out);
+  }
 
-  // HINT: rootsolver.h contains 3 methods
-  //          int solve_linear(...) which solves ax+b = 0
-  //          int solve_quadratic(...) which solves ax^2+bx+c = 0
-  //          int solve_in_range(...) which solves for a root of a 
-  //               generic polynomial in the range [left, right] using 
-  //               the bisection method
-  //
-  //       - if the sign of "a" is positive, you should be able to find x 
-  //         - sufficiently small (e.g. towards -infinity) such that f(x) < 0
-  //         - sufficiently large (e.g. towards +infinity) such that f(x) > 0
-  //       - if the sign of "a" is negative, you should be able to find x
-  //         - sufficiently small (e.g. towards -infinity) such that f(x) > 0
-  //         - sufficiently large (e.g. towards +infinity) such that f(x) < 0
-  //       - if "a" is zero, you have a quadratic equation, which you should be able to solve
-  //
-  //
-  //  At this point, you are guaranteed to find at least one root using the bisection method
-  //     You can either proceed to find it and use polynomial long division to get a quadratic
-  //     equation, or you can use a property of stationary points (remember those?) to find 
-  //     bounds for all three roots individually:
-  //
-  //       - there can only be one root between stationary points since the function is either 
-  //           strictly increasing or strictly decreasing between them
-  //
-  //  e.g. x^3 - 6*x^2 + 11*x - 6
-  //       has stationary points at x1=1.4226 and x2=2.5774
-  //         f(x1) > 0, f(x2) < 0
-  //       We can find x0 < x1 so that f(x0) < 0 (e.g. take x0 = 0)
-  //       We can find x3 > x2 so that f(x3) > 0 (e.g. take x3 = 4)
-  //       
-  //       There is at most one root in the range [x0, x1],
-  //          and since f(x0) and f(x1) have opposite signs, we can find it (root0 = 1)
-  //       There is at most one root in the range [x1, x2],
-  //          and since f(x1) and f(x2) have opposite signs, we can find it (root1 = 2)
-  //       There is at most one root in the range [x2, x3],
-  //          and since f(x2) and f(x3) have opposite signs, we can find it (root2 = 3)
-  //
-  //  e.g. x^3 - 3*x^2 + 3*x + 1
-  //       has an inflection point at x1=x2=1 (repeated root of 3x^2 - 6x + 3)
-  //         f(x1) = f(x2) = 2 > 0
-  //       We can find x0 < x1 such that f(x0) < 0 (e.g. take x0 = -1)
-  //       We can find x3 > x2 so that f(x3) > 0   (e.g. take x3 = 2)
-  //
-  //       There is at most one root in the range [x0, x1],
-  //          and since f(x0) and f(x1) have opposite signs, we can find it (root0 = -0.25992)
-  //       There is NO root in the range [x1, x2], since f(x1) == f(x2) > 0
-  //       There is NO root in the range [x2, x3], since both f(x2) and f(x3) have the same sign
+  // roots of f(x) and -f(x) are the same, so for convenience enforce a>0
+  if (a < 0) {
+    a = -a;
+    b = -b;
+    c = -c;
+    d = -d;
+  }
+
+  // store coefficients in array for solve_in_range
+  double coeffs[4];
+  coeffs[0] = d;
+  coeffs[1] = c;
+  coeffs[2] = b;
+  coeffs[3] = a;
+
+  // find stationary points
+  int nstats = rootsolver::solve_quadratic(c, 2*b, 3*a, out);
+
+  if (nstats == 0) {
+    // no stationary points, go left until f<0 and right until f>0
+
+    // find lower-bound
+    double dx = -1;       // start with a certain step size to search left
+    double x0 = dx;
+    double f0 = a*x0*x0*x0 + b*x0*x0 + c*x0 + d;
+    while (f0 > 0) {
+      // keep doubling step size and move further left
+      dx *= 2;
+      x0 = x0+dx;
+      f0 = a*x0*x0*x0 + b*x0*x0 + c*x0 + d;
+    }
+
+    // find upper-bound
+    dx = 1;       // start with a certain step size to search right
+    double x3 = dx;
+    double f3 = a*x3*x3*x3 + b*x3*x3 + c*x3 + d;
+    while (f3 < 0) {
+      // keep doubling step size and move further right
+      dx *= 2;
+      x3 = x3+dx;
+      f3 = a*x3*x3*x3 + b*x3*x3 + c*x3 + d;
+    }
+
+    return rootsolver::solve_in_range(coeffs, 4, x0, x3, out[0]);
+
+  } else if (nstats == 1) {
+    // inflection point, see if it's greater or less than zero
+    double x1 = out[0];
+    double f1 = a*x1*x1*x1 + b*x1*x1 + c*x1 + d;
+    
+    if (f1 == 0) {
+      return 1;  // root at inflection point
+    } else if (f1 < 0) {
+      // single solution must be in [x1, infinity]
+      // find upper-bound
+      double dx = 1;       // start with a certain step size to search right
+      double x3 = x1+dx;
+      double f3 = a*x3*x3*x3 + b*x3*x3 + c*x3 + d;
+      while (f3 < 0) {
+        // keep doubling step size and move further right
+        dx *= 2;
+        x3 = x3+dx;
+        f3 = a*x3*x3*x3 + b*x3*x3 + c*x3 + d;
+      }
+
+      // should have root in [x1, x3] now
+      return rootsolver::solve_in_range(coeffs, 4, x1, x3, out[0]);
+    } else {
+      // single solution must be in [-infinity, x1]
+      // find lower-bound
+      double dx = -1;       // start with a certain step size to search left
+      double x0 = x1+dx;
+      double f0 = a*x0*x0*x0 + b*x0*x0 + c*x0 + d;
+      while (f0 > 0) {
+        // keep doubling step size and move further left
+        dx *= 2;
+        x0 = x0+dx;
+        f0 = a*x0*x0*x0 + b*x0*x0 + c*x0 + d;
+      }
+
+      // should have root in [x0, x1] now
+      return rootsolver::solve_in_range(coeffs, 4, x0, x1, out[0]);
+    }
+  } // single stationary point
+
+  // we have two stationary points
+  double x1 = out[0];
+  double f1 = a*x1*x1*x1 + b*x1*x1 + c*x1 + d;
+  double x2 = out[1];
+  double f2 = a*x2*x2*x2 + b*x2*x2 + c*x2 + d;
+
+  // left-most root between (-infinity, x1]
+  int nroots = 0;
+  if (f1 > 0) {
+    // find lower-bound
+    double dx = -1;       // start with a certain step size to search left
+    double x0 = x1+dx;
+    double f0 = a*x0*x0*x0 + b*x0*x0 + c*x0 + d;
+    while (f0 > 0) {
+      // keep doubling step size and move further left
+      dx *= 2;
+      x0 = x0+dx;
+      f0 = a*x0*x0*x0 + b*x0*x0 + c*x0 + d;
+    }
+
+    nroots += rootsolver::solve_in_range(coeffs, 4, x0, x1, out[nroots]);
+  } else if (f1 == 0) {
+    // root exactly on x1
+    out[nroots] = x1;
+    x1 += 1e-16*(x2-x1);  // perturb root ever-so-slightly
+    ++nroots;
+  }
+
+  // next root between (x1, x2)
+  if (f1 > 0 && f2 < 0) {
+    nroots += rootsolver::solve_in_range(coeffs, 4, x1, x2, out[nroots]);
+  } 
+
+  // right-most root between [x2, infinity)
+  if (f2 == 0) {
+    // root exactly at x2
+    out[nroots] = x2;
+    x2 += 1e-16*(x2-x1);  // perturb root ever-so-slightly
+    ++nroots;
+  } else if (f2 < 0) {
+    // find upper-bound
+    double dx = 1;       // start with a certain step size to search right
+    double x3 = x2+dx;
+    double f3 = a*x3*x3*x3 + b*x3*x3 + c*x3 + d;
+    while (f3 < 0) {
+      // keep doubling step size and move further right
+      dx *= 2;
+      x3 = x3+dx;
+      f3 = a*x3*x3*x3 + b*x3*x3 + c*x3 + d;
+    }
+
+    nroots += rootsolver::solve_in_range(coeffs, 4, x2, x3, out[nroots]);
+  }
+
+  return nroots;
+
 }
 
 int main() {
@@ -76,7 +173,7 @@ int main() {
 
   int nroots = solve_cubic(d, c, b, a, roots);
   std::cout << std::endl << a << "x^3 + " << b << "x^2 + " 
-    << c << "x + " << d << " has " << nroots << " roots:"  ;
+    << c << "x + " << d << " has " << nroots << " roots:" << std::endl;
   for (int i=0; i<nroots; ++i) {
     std::cout << "  " << roots[i] << std::endl;
   }

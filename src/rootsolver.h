@@ -15,14 +15,16 @@ int solve_linear(double b, double a, double out[]) {
   return 1;
 }
 
-// solves for roots of a*x^2 + b*x + c = 0,
-// returns number of roots found
-int solve_quadratic(double c, double b, double a, double[] out) {
+// solves for unique roots of a*x^2 + b*x + c = 0,
+// returns number of unique roots found
+int solve_quadratic(double c, double b, double a, double out[]) {
 
   // check if actually linear
   if (a == 0) {
-    return solve_linear(b, c);
+    return solve_linear(b, c, out);
   }
+
+  double q = b*b-4*a*c;
 
   // imaginary
   if (q < 0) {
@@ -46,11 +48,9 @@ int solve_quadratic(double c, double b, double a, double[] out) {
 // solves for a root in the given range
 // requires f(left)*f(right) < 0, where f = sum(coeffs[i]*x^i, i=0..ncoeffs-1)
 //   i.e. the root must be bracketed
-int solve_in_range(double coeffs[], int ncoeffs, double left, double right, double[] out) {
+int solve_in_range(double coeffs[], int ncoeffs, double left, double right, double &out) {
 
   // binary search in range
-
-  double eps = (right-left)*1e-19;  // epsilon to stop searching (roughly 64 iterations)
 
   // compute f(left)
   double fleft = 0;
@@ -75,8 +75,11 @@ int solve_in_range(double coeffs[], int ncoeffs, double left, double right, doub
     return fright;
   }
 
-  do {
-    double mid = (left+right)/2;
+  double mid = left;
+
+  // accuracy of (right-left)/2^64
+  for (int i=0; i<64; ++i) {
+    mid = (left+right)/2;
     // compute f(mid)
     double fmid = 0;
     for (int i=0; i<ncoeffs; ++i) {
@@ -94,12 +97,12 @@ int solve_in_range(double coeffs[], int ncoeffs, double left, double right, doub
       fleft = fmid;
     } else {
       // funky area in-between, we've found root
-      out[0] = mid;
+      out = mid;
       return 1;
     }
-  } while(right-left > eps);
+  };
 
-  out[0] = mid;
+  out = mid;
   return 1;
 
 }
