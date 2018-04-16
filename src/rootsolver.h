@@ -70,9 +70,11 @@ int solve_in_range(double coeffs[], int ncoeffs, double left, double right, doub
   } else if (fleft*fright == 0) {
     // return smaller of two
     if (std::fabs(fleft) < std::fabs(fright)) {
-      return fleft;
+      out left;
+    } else {
+      out = right;
     }
-    return fright;
+    return 1;
   }
 
   double mid = left;
@@ -97,8 +99,7 @@ int solve_in_range(double coeffs[], int ncoeffs, double left, double right, doub
       fleft = fmid;
     } else {
       // funky area in-between, we've found root
-      out = mid;
-      return 1;
+      break;
     }
   };
 
