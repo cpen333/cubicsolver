@@ -37,7 +37,7 @@ int solve_cubic(double d, double c, double b, double a, double out[]) {
     double dx = -1;       // start with a certain step size to search left
     double x0 = dx;
     double f0 = a*x0*x0*x0 + b*x0*x0 + c*x0 + d;
-    while (f0 > 0) {
+    while (f0 >= 0) {
       // keep doubling step size and move further left
       dx *= 2;
       x0 = x0+dx;
@@ -48,7 +48,7 @@ int solve_cubic(double d, double c, double b, double a, double out[]) {
     dx = 1;       // start with a certain step size to search right
     double x3 = dx;
     double f3 = a*x3*x3*x3 + b*x3*x3 + c*x3 + d;
-    while (f3 < 0) {
+    while (f3 <= 0) {
       // keep doubling step size and move further right
       dx *= 2;
       x3 = x3+dx;
@@ -70,7 +70,7 @@ int solve_cubic(double d, double c, double b, double a, double out[]) {
       double dx = 1;       // start with a certain step size to search right
       double x3 = x1+dx;
       double f3 = a*x3*x3*x3 + b*x3*x3 + c*x3 + d;
-      while (f3 < 0) {
+      while (f3 <= 0) {
         // keep doubling step size and move further right
         dx *= 2;
         x3 = x3+dx;
@@ -85,7 +85,7 @@ int solve_cubic(double d, double c, double b, double a, double out[]) {
       double dx = -1;       // start with a certain step size to search left
       double x0 = x1+dx;
       double f0 = a*x0*x0*x0 + b*x0*x0 + c*x0 + d;
-      while (f0 > 0) {
+      while (f0 >= 0) {
         // keep doubling step size and move further left
         dx *= 2;
         x0 = x0+dx;
@@ -110,7 +110,7 @@ int solve_cubic(double d, double c, double b, double a, double out[]) {
     double dx = -1;       // start with a certain step size to search left
     double x0 = x1+dx;
     double f0 = a*x0*x0*x0 + b*x0*x0 + c*x0 + d;
-    while (f0 > 0) {
+    while (f0 >= 0) {
       // keep doubling step size and move further left
       dx *= 2;
       x0 = x0+dx;
@@ -141,7 +141,7 @@ int solve_cubic(double d, double c, double b, double a, double out[]) {
     double dx = 1;       // start with a certain step size to search right
     double x3 = x2+dx;
     double f3 = a*x3*x3*x3 + b*x3*x3 + c*x3 + d;
-    while (f3 < 0) {
+    while (f3 <= 0) {
       // keep doubling step size and move further right
       dx *= 2;
       x3 = x3+dx;
